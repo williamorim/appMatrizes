@@ -80,10 +80,9 @@ golem_add_external_resources <- function() {
   )
 
   tags$head(
-    favicon(),
     bundle_resources(
       path = app_sys("app/www"),
-      app_title = "appMatrizes"
+      app_title = "Matrizes e imagens"
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
