@@ -52,7 +52,8 @@ mod_imagens_ui <- function(id){
           label = "Valor de t [0, 1]",
           value = 0,
           min = 0,
-          max = 1
+          max = 1,
+          step = 0.01
         )
       )
     ),
@@ -116,13 +117,12 @@ mod_imagens_server <- function(id){
 
     im_original_A <- reactive({
       if (!isTruthy(input$imagemA)) {
-        im <- imager::load.image("inst/app/www/jake.jpeg") |>
-          imager::grayscale()
+        im <- imager::load.image("inst/app/www/inicial.jpeg") |>
+          imager::resize(size_x = 512, size_y = 512)
         imagem_trans(im)
         im
       } else {
         im <- imager::load.image(input$imagemA$datapath) |>
-          imager::grayscale() |>
           imager::resize(size_x = 512, size_y = 512)
         imagem_trans(im)
         im
@@ -131,13 +131,11 @@ mod_imagens_server <- function(id){
 
     im_original_B <- reactive({
       if (!isTruthy(input$imagemB)) {
-        im <- imager::load.image("inst/app/www/finn.jpeg") |>
-          imager::resize(size_x = 512, size_y = 512) |>
-          imager::grayscale()
+        im <- imager::load.image("inst/app/www/final.jpeg") |>
+          imager::resize(size_x = 512, size_y = 512)
         im
       } else {
         im <- imager::load.image(input$imagemB$datapath) |>
-          imager::grayscale() |>
           imager::resize(size_x = 512, size_y = 512)
         im
       }
@@ -157,27 +155,33 @@ mod_imagens_server <- function(id){
 
     observeEvent(input$transpor, {
       dados_im <- as.array(im_original_A())
-      matriz <- as.matrix(dados_im[,,1,1])
-      dados_im[,,1,1] <- t(matriz)
+      for (i in 1:dim(dados_im)[4]) {
+        matriz <- as.matrix(dados_im[,,1,i])
+        dados_im[,,1,i] <- t(matriz)
+      }
       imagem_trans(imager::as.cimg(dados_im))
     })
 
     observeEvent(input$multiplicar, {
       dados_im <- as.array(im_original_A())
-      matriz <- as.matrix(dados_im[,,1,1])
-      matriz <- matriz * input$valor_escalar
-      matriz <- apply(matriz, c(1, 2), limitar_valor)
-      dados_im[,,1,1] <- matriz
+      for (i in 1:dim(dados_im)[4]) {
+        matriz <- as.matrix(dados_im[,,1,i])
+        matriz <- matriz * input$valor_escalar
+        matriz <- apply(matriz, c(1, 2), limitar_valor)
+        dados_im[,,1,i] <- matriz
+      }
       imagem_trans(imager::as.cimg(dados_im))
     })
 
     observeEvent(input$unir, {
       dados_im_A <- as.array(im_original_A())
       dados_im_B <- as.array(im_original_B())
-      matriz_A <- as.matrix(dados_im_A[,,1,1])
-      matriz_B <- as.matrix(dados_im_B[,,1,1])
-      matriz <- (1 - input$valor_t) * matriz_A + input$valor_t * matriz_B
-      dados_im_A[,,1,1] <- matriz
+      for (i in 1:dim(dados_im_A)[4]) {
+        matriz_A <- as.matrix(dados_im_A[,,1,i])
+        matriz_B <- as.matrix(dados_im_B[,,1,i])
+        matriz <- (1 - input$valor_t) * matriz_A + input$valor_t * matriz_B
+        dados_im_A[,,1,i] <- matriz
+      }
       imagem_trans(imager::as.cimg(dados_im_A))
     })
 

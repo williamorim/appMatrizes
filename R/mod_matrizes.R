@@ -170,7 +170,10 @@ mod_matrizes_server <- function(id){
             width = 40,
             style = function(x) {
               list(backgroundColor = glue::glue("rgb({x}, {x}, {x})"))
-            }
+            },
+            format = reactable::colFormat(
+              digits = 0
+            )
           )
         )
     })
